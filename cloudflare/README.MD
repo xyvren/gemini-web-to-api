@@ -1,72 +1,85 @@
-# Gemini Web2API - Cloudflare Workers 部署文档
+# gemini-web-to-api - Panduan Deployment Cloudflare Workers
 
-## 📖 项目简介
+<p align="center">
+  <a href="https://github.com/xyvren/gemini-web-to-api"><img src="https://img.shields.io/badge/GitHub-xyvren%2Fgemini--web--to--api-2563eb?style=flat&logo=github" alt="GitHub Repository"></a>
+  <a href="https://workers.cloudflare.com/"><img src="https://img.shields.io/badge/Platform-Cloudflare%20Workers-f38020?style=flat&logo=cloudflare" alt="Cloudflare Workers"></a>
+  <a href="../LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+</p>
 
-Gemini Web2API 是一个部署在 Cloudflare Workers 上的无服务器代理服务，将 Google Gemini 的 Web 界面转换为 OpenAI 兼容的 API 接口。无需服务器、无需 API Key（可选），开箱即用。
-
-### 核心特性
-
-- **零成本部署**：基于 Cloudflare Workers 免费计划（每日 10 万次请求）
-- **全球加速**：自动部署到 Cloudflare 全球 300+ 边缘节点
-- **OpenAI 兼容**：完全兼容 `/v1/chat/completions` 和 `/v1/models` 端点
-- **打字机流式输出**：真正的 SSE（Server-Sent Events）流式响应
-- **多指纹轮换**：8 种浏览器指纹 + 6 种语言偏好随机轮换，降低被识别概率
-- **多 Cookie 轮换**：支持配置多个 Google 账号 Cookie，随机选择使用
-- **并发安全**：请求级配置隔离，彻底消除高并发场景下的配置串扰
-- **工具调用支持**：兼容 OpenAI Function Calling 格式
-
-### 适用场景
-
-- 为 NextChat、Cherry Studio、ChatBox 等客户端提供免费的 Gemini API
-- 在 WorkBuddy 等工具中作为 Gemini 模型的后端
-- 个人学习、研究和小型项目的 AI 能力接入
+<p align="center">
+  <a href="README_CN.md">中文文档</a> • <a href="../README.md">Dokumentasi Utama Proyek</a>
+</p>
 
 ---
 
-## 🚀 快速部署
+## 📖 Ringkasan Proyek
 
-### 第一步：登录 Cloudflare
+**gemini-web-to-api (Cloudflare Workers Edition)** adalah layanan proxy tanpa server (*serverless reverse-proxy*) yang mengubah antarmuka web publik Google Gemini menjadi endpoint API standar yang 100% kompatibel dengan format **OpenAI API**.
 
-1. 打开 [Cloudflare Dashboard](https://dash.cloudflare.com)
-2. 登录你的 Cloudflare 账号（没有账号可以免费注册）
-3. 进入左侧菜单 **Workers & Pages**
+Layanan ini berjalan sepenuhnya di jaringan edge Cloudflare: **tanpa memerlukan server pribadi**, gratis (hingga 100.000 request per hari), dan siap digunakan untuk menghubungkan berbagai aplikasi AI klien.
 
-### 第二步：创建 Worker
+---
 
-1. 点击 **创建应用程序** → **创建 Worker**
-2. 给 Worker 起一个名字（例如 `api`）
-3. 点击 **部署** 按钮
-4. 点击 **编辑代码** 按钮
-5. 清空编辑器中的默认代码
-6. 将本项目完整代码粘贴到编辑器中
-7. 点击右上角 **保存并部署**
+## ✨ Fitur Utama
 
-### 第三步：获取测试地址
+- **Deployment Bebas Biaya:** Memanfaatkan paket gratis Cloudflare Workers tanpa perlu kartu kredit atau server VPS.
+- **Akselerasi Jaringan Global:** Didistribusikan secara otomatis ke 300+ lokasi pusat data edge Cloudflare di seluruh dunia.
+- **100% OpenAI Compatible:** *Drop-in replacement* untuk endpoint `/v1/chat/completions` dan `/v1/models`.
+- **Real-time SSE Streaming:** Respons teks mengalir langsung secara live per-token (*typewriter effect*).
+- **Rotasi Multi-Fingerprint:** 8 variasi browser fingerprint + 6 preferensi bahasa secara acak untuk meminimalkan risiko deteksi anti-bot Google.
+- **Rotasi Multi-Cookie:** Mendukung konfigurasi banyak akun Google sekaligus dengan pemilihan acak otomatis pada tiap request.
+- **Aman Konkurensi (*Concurrency-Safe*):** Isolasi konfigurasi per-request sehingga tidak terjadi tabrakan konfigurasi pada trafik tinggi.
+- **Dukungan Tool Calling:** Kompatibel dengan format OpenAI Function Calling.
 
-部署成功后，你的 API 地址为：
+---
 
+## 🎯 Skenario Penggunaan
+
+- Menyediakan endpoint API gratis untuk aplikasi klien seperti **Cherry Studio**, **ChatBox**, **NextChat**, **OpenWebUI**, **Cursor**, atau **Cline**.
+- Sebagai backend model AI untuk ekstensi peramban, asisten virtual, atau skrip otomasi pribadi.
+- Eksperimen dan riset pengembangan AI tanpa biaya langganan API berbayar.
+
+---
+
+## 🚀 Panduan Cepat Deployment
+
+### Langkah 1: Buka Cloudflare Dashboard
+1. Akses [Cloudflare Dashboard](https://dash.cloudflare.com) dan login ke akun Anda (daftar gratis jika belum memiliki akun).
+2. Di panel menu navigasi sebelah kiri, pilih **Workers & Pages**.
+
+### Langkah 2: Buat Worker Baru
+1. Klik tombol **Create Application** (Buat Aplikasi) → pilih tab **Workers** → klik **Create Worker**.
+2. Berikan nama untuk Worker Anda (misalnya: `gemini-api`).
+3. Klik tombol **Deploy**.
+4. Setelah selesai dibuat, klik tombol **Edit code** (Edit kode).
+5. Hapus seluruh kode bawaan yang ada di editor.
+6. Buka file [`worker.js`](worker.js) di repository ini, salin seluruh kodenya, dan tempelkan ke editor Cloudflare.
+7. Klik tombol **Save and deploy** di pojok kanan atas.
+
+### Langkah 3: Dapatkan Alamat API Anda
+Setelah berhasil dideploy, Worker Anda dapat diakses melalui domain publik:
+
+```text
+https://<nama-worker>.<subdomain-akun>.workers.dev
 ```
-https://你的worker名称.你的账户名.workers.dev
+
+*Contoh: `https://gemini-api.myaccount.workers.dev`*
+
+### Langkah 4: Verifikasi Status Deployment
+Buka URL health check di browser Anda:
+
+```text
+https://<nama-worker>.<subdomain-akun>.workers.dev/health
 ```
 
-例如：`https://api.geminai.workers.dev`
-
-### 第四步：验证部署
-
-在浏览器中访问以下地址：
-
-```
-https://你的worker.workers.dev/health
-```
-
-如果看到类似以下 JSON 响应，说明部署成功：
+Jika deployment berhasil, Anda akan melihat respons JSON seperti berikut:
 
 ```json
 {
   "status": "ok",
   "version": "1.5.0-cf-multifingerprint",
   "platform": "Cloudflare Workers",
-  "models": ["gemini-3.6-flash", "gemini-3.5-flash", "..."],
+  "models": ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.5-thinking", "..."],
   "hasCookie": false,
   "hasSapisid": false
 }
@@ -74,226 +87,185 @@ https://你的worker.workers.dev/health
 
 ---
 
-## 🔧 客户端配置
+## 🔧 Konfigurasi Aplikasi Klien
 
-### NextChat (ChatGPT-Next-Web)
+### 1. NextChat (ChatGPT-Next-Web)
+| Parameter | Nilai Konfigurasi |
+| :--- | :--- |
+| **Model Provider** | OpenAI |
+| **Endpoint / Base URL** | `https://<nama-worker>.workers.dev/v1` |
+| **API Key** | `sk-gemini` *(atau kunci yang Anda tentukan di env)* |
+| **Model** | `gemini-3.6-flash` atau `gemini-3.5-flash-thinking` |
 
-| 配置项 | 值 |
-|--------|-----|
-| 接口类型 | OpenAI |
-| 接口地址 | `https://你的worker.workers.dev/v1` |
-| API Key | `sk-gemini`（默认密钥） |
-| 模型 | `gemini-3.6-flash` |
+### 2. Cherry Studio
+| Parameter | Nilai Konfigurasi |
+| :--- | :--- |
+| **API Provider** | OpenAI Compatible |
+| **API URL / Host** | `https://<nama-worker>.workers.dev/v1` |
+| **API Key** | `sk-gemini` |
+| **Model ID** | `gemini-3.6-flash` |
 
-### Cherry Studio
+### 3. ChatBox
+| Parameter | Nilai Konfigurasi |
+| :--- | :--- |
+| **Model Provider** | OpenAI API |
+| **API Host** | `https://<nama-worker>.workers.dev` |
+| **API Path** | `/v1/chat/completions` |
+| **API Key** | `sk-gemini` |
 
-| 配置项 | 值 |
-|--------|-----|
-| API 地址 | `https://你的worker.workers.dev/v1` |
-| API 密钥 | `sk-gemini` |
-| 模型 | `gemini-3.6-flash` |
+---
 
-### ChatBox
+## 🧪 Contoh Pengujian dengan cURL
 
-| 配置项 | 值 |
-|--------|-----|
-| API 模式 | OpenAI API |
-| API 域名 | `https://你的worker.workers.dev` |
-| API 路径 | `/v1/chat/completions` |
-| API Key | `sk-gemini` |
-
-### 使用 curl 测试
-
+**Request Non-Streaming:**
 ```bash
-# 非流式请求
-curl https://你的worker.workers.dev/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer sk-gemini" \
-  -d '{
+curl https://<nama-worker>.workers.dev/v1/chat/completions   -H "Content-Type: application/json"   -H "Authorization: Bearer sk-gemini"   -d '{
     "model": "gemini-3.6-flash",
-    "messages": [{"role": "user", "content": "你好"}],
+    "messages": [{"role": "user", "content": "Halo! Siapa kamu?"}],
     "stream": false
   }'
+```
 
-# 流式请求（打字机效果）
-curl -N https://你的worker.workers.dev/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer sk-gemini" \
-  -d '{
+**Request Real-Time SSE Streaming:**
+```bash
+curl -N https://<nama-worker>.workers.dev/v1/chat/completions   -H "Content-Type: application/json"   -H "Authorization: Bearer sk-gemini"   -d '{
     "model": "gemini-3.6-flash",
-    "messages": [{"role": "user", "content": "讲个故事"}],
+    "messages": [{"role": "user", "content": "Ceritakan ringkasan singkat sejarah komputer."}],
     "stream": true
   }'
 ```
 
 ---
 
-## ⚙️ 环境变量配置（可选）
+## ⚙️ Konfigurasi Environment Variables (Opsional)
 
-在 Cloudflare Dashboard → Workers → 你的 Worker → 设置 → 变量 → 环境变量中配置：
+Untuk kustomisasi tingkat lanjut, buka Cloudflare Dashboard:  
+**Workers & Pages** → pilih Worker Anda → **Settings** → **Variables and Secrets** → **Add variable**.
 
-### 认证相关
+### 1. Kredensial & Autentikasi
+| Nama Variabel | Deskripsi | Contoh Nilai |
+| :--- | :--- | :--- |
+| **`API_KEYS`** | Daftar whitelist API Key dalam format JSON array | `["sk-gemini", "kunci-rahasia-saya"]` |
+| **`COOKIE_STRING`** | String Cookie Gemini (pisahkan dengan `\|` jika banyak) | `cookie_akun1\| cookie_akun2` |
+| **`SAPISID`** | Nilai token SAPISID (pisahkan dengan `\|` jika banyak) | `sapisid_1\| sapisid_2` |
 
-| 变量名 | 说明 | 示例值 |
-|--------|------|--------|
-| `COOKIE_STRING` | Gemini Cookie，多个用 `\|` 分隔 | `cookie1\| cookie2\| cookie3` |
-| `SAPISID` | SAPISID 值，多个用 `\|` 分隔 | `sapisid1\| sapisid2\| sapisid3` |
-| `API_KEYS` | API 密钥白名单（JSON 数组） | `["sk-gemini", "my-key"]` |
+### 2. Pengaturan Gemini
+| Nama Variabel | Deskripsi | Default / Contoh |
+| :--- | :--- | :--- |
+| **`GEMINI_BL`** | Build label backend Gemini (perbarui jika muncul error 405) | `boq_assistant-bard-web-server_20260730.02_p0` |
+| **`DEFAULT_MODEL`**| Model default yang digunakan | `gemini-3.6-flash` |
+| **`AUTH_USER`** | Indeks profil akun Google (jika multi-profil) | `0` |
 
-### Gemini 配置
-
-| 变量名 | 说明 | 示例值 |
-|--------|------|--------|
-| `GEMINI_BL` | Gemini 构建标签（遇到 405 时更新） | `boq_assistant-bard-web-server_20260716.08_p0` |
-| `DEFAULT_MODEL` | 默认模型 | `gemini-3.6-flash` |
-| `AUTH_USER` | 多账户索引 | `0` |
-
-### 性能调优
-
-| 变量名 | 说明 | 默认值 |
-|--------|------|--------|
-| `RETRY_ATTEMPTS` | 重试次数 | `3` |
-| `RETRY_DELAY_SEC` | 重试间隔（秒） | `2` |
-| `REQUEST_TIMEOUT_SEC` | 请求超时（秒） | `28` |
-| `FINGERPRINT_JITTER_MS` | 随机延迟最大值（毫秒） | `1500` |
-| `RATE_LIMIT_MAX` | 速率限制最大请求数 | `3000` |
-| `RATE_LIMIT_WINDOW` | 速率限制时间窗口（秒） | `60` |
+### 3. Optimasi Performa & Keamanan
+| Nama Variabel | Deskripsi | Nilai Default |
+| :--- | :--- | :--- |
+| **`RETRY_ATTEMPTS`** | Jumlah percobaan ulang jika terjadi kegagalan | `3` |
+| **`RETRY_DELAY_SEC`** | Jeda antar percobaan ulang (detik) | `2` |
+| **`REQUEST_TIMEOUT_SEC`** | Batas waktu timeout request (detik) | `28` |
+| **`FINGERPRINT_JITTER_MS`**| Variasi jeda acak pra-request untuk meniru manusia | `1500` (ms) |
+| **`RATE_LIMIT_MAX`** | Batas maksimal request per window | `3000` |
+| **`RATE_LIMIT_WINDOW`** | Jendela waktu rate limiting (detik) | `60` |
 
 ---
 
-## 🍪 获取 Gemini Cookie
+## 🍪 Mengambil Cookie Akun Gemini (Opsional untuk Model Pro)
 
-### 为什么需要 Cookie？
+### Mengapa Memerlukan Cookie?
+Request anonim rentan terkena pembatasan frekuensi (*HTTP 429 Too Many Requests*). Menggunakan cookie akun Google:
+- Menghindari pembatasan laju request anonim.
+- Membuka akses ke rute penalaran model Pro secara optimal (memerlukan langganan Gemini Advanced).
+- Menyediakan stabilitas koneksi yang lebih andal.
 
-匿名请求容易被 Gemini 限流（返回 HTTP 429 错误）。配置有效的 Cookie 可以：
-- 大幅降低被限流的概率
-- 提升 Pro 模型的路由质量
-- 获得更稳定的服务体验
-
-### 获取步骤
-
-1. 打开 Chrome/Edge 浏览器
-2. 访问 https://gemini.google.com/app 并登录 Google 账号
-3. 按 **F12** 打开开发者工具
-4. 进入 **Application**（应用程序）标签
-5. 左侧选择 **Cookies** → `https://gemini.google.com`
-6. 找到以下 Cookie 并复制其值：
+### Langkah Pengambilan Cookie Manual:
+1. Buka browser Chrome atau Edge.
+2. Kunjungi [https://gemini.google.com/app](https://gemini.google.com/app) dan login ke akun Google Anda.
+3. Tekan **F12** untuk membuka Developer Tools.
+4. Buka tab **Application** (atau Penyimpanan).
+5. Pada panel samping kiri, pilih **Cookies** → `https://gemini.google.com`.
+6. Cari dan salin nilai dari cookie berikut:
    - `__Secure-1PSID`
    - `__Secure-3PSID`
    - `SAPISID`
-7. 组合为完整 Cookie 字符串：
+7. Gabungkan menjadi format satu baris:
+   ```text
+   __Secure-1PSID=nilai_1psid; __Secure-3PSID=nilai_3psid; SAPISID=nilai_sapisid
    ```
-   __Secure-1PSID=你的值; __Secure-3PSID=你的值; SAPISID=你的值
-   ```
 
-### 多账号配置
-
-如果你有多个 Google 账号，可以用 `|` 分隔多个 Cookie：
-
-```
-COOKIE_STRING = "cookie_账号1| cookie_账号2| cookie_账号3"
-SAPISID = "sapisid_1| sapisid_2| sapisid_3"
-```
-
-每次请求会随机选择一个 Cookie 使用，大幅降低单个账号被限流的概率。
+*(Atau gunakan ekstensi Chrome bawaan di folder `../gemini-cookie-sync-extension/` untuk mengekspor otomatis).*
 
 ---
 
-## 🔄 更新 BL 版本
+## 🔄 Mengatasi Error HTTP 405 (Update BL Version)
 
-如果遇到 `HTTP 405: Method Not Allowed` 错误，说明 Gemini 前端已更新，需要同步更新构建标签：
+Jika Anda mendapatkan pesan error `HTTP 405: Method Not Allowed`, ini menandakan build version backend Google Gemini telah diperbarui:
 
-1. 浏览器打开 https://gemini.google.com/app
-2. 按 **F12** → **Network**（网络）标签
-3. 在任意请求的 URL 中搜索 `boq_assistant`
-4. 复制最新的版本号，例如：
-   ```
+1. Buka browser dan akses [https://gemini.google.com/app](https://gemini.google.com/app).
+2. Tekan **F12** → buka tab **Network**.
+3. Ketik `boq_assistant` di kolom filter pencarian network request.
+4. Salin nomor versi build terbaru dari URL, contoh:
+   ```text
    boq_assistant-bard-web-server_20260730.02_p0
    ```
-5. 更新环境变量 `GEMINI_BL` 或代码中的 `geminiBl` 配置项
+5. Perbarui nilai variabel lingkungan **`GEMINI_BL`** di pengaturan Cloudflare Worker Anda.
 
 ---
 
-## 🎭 多指纹轮换机制
+## 🎭 Mekanisme Rotasi Fingerprint Peramban
 
-本程序内置了浏览器指纹轮换系统，每次请求会随机选择不同的浏览器标识：
+Worker ini dilengkapi modul emulasi peramban otomatis untuk mencegah pemblokiran:
 
-| 指纹类型 | 池大小 | 说明 |
-|---------|--------|------|
-| User-Agent | 8 种 | 加权随机，模拟真实浏览器市场份额 |
-| Accept-Language | 6 种 | 均匀随机，模拟不同地区用户 |
-| Sec-Ch-Ua | 3 种 | Chrome 版本标识（仅 Chrome UA 时添加） |
-| 随机延迟 | 0-1500ms | 请求前添加随机延迟，模拟人类操作 |
-
----
-
-## 🛡️ 安全建议
-
-1. **修改默认 API Key**：将 `apiKeys` 中的 `sk-gemini` 改为你自己的密钥
-2. **设置速率限制**：根据实际使用量调整 `RATE_LIMIT_MAX`
-3. **定期更新 Cookie**：Google Cookie 会过期，需要定期更换
-4. **不要分享 Cookie**：Cookie 等同于你的 Google 账号凭证
+| Komponen Fingerprint | Variasi | Keterangan |
+| :--- | :--- | :--- |
+| **User-Agent** | 8 varian | Bobot acak menyesuaikan statistik pangsa pasar peramban modern |
+| **Accept-Language** | 6 varian | Meniru keragaman demografis wilayah pengguna |
+| **Sec-Ch-Ua** | 3 varian | Header Client Hints modern (disesuaikan dengan Chrome UA) |
+| **Jitter Delay** | 0-1500 ms | Menambahkan jeda waktu mikro alami sebelum mengirim request |
 
 ---
 
-## ❓ 常见问题
+## 📊 Daftar Model yang Didukung
 
-### Q: 返回 `empty response from server`
+| Model ID | Mode | Keterangan |
+| :--- | :--- | :--- |
+| `gemini-3.6-flash` | FAST | Model serbaguna default stabil |
+| `gemini-3.5-flash` | FAST | Alias untuk model 3.6 Flash |
+| `gemini-3.5-flash-thinking` | THINKING | Model dengan penalaran mendalam (*Extended Thinking*) |
+| `gemini-3.1-pro` | PRO | Mode Pro (*membutuhkan Cookie Google*) |
+| `gemini-auto` | AUTO | Penentuan model otomatis oleh sistem Gemini |
+| `gemini-3.5-flash-thinking-lite` | DYNAMIC | Mode penalaran dinamis adaptif |
+| `gemini-flash-lite` | LITE | Model paling ringan dengan latensi terendah |
 
-**原因**：NextChat 流式解析问题。  
-**解决**：确认使用的是最新版代码（已修复 SSE 格式）。
-
-### Q: 返回 `HTTP 429: Too Many Requests`
-
-**原因**：Gemini 限流，匿名请求频率限制更严格。  
-**解决**：配置有效的 `COOKIE_STRING` 和 `SAPISID`。
-
-### Q: 返回 `HTTP 405: Method Not Allowed`
-
-**原因**：BL 版本过期。  
-**解决**：更新 `geminiBl` 配置（参见上文「更新 BL 版本」章节）。
-
-### Q: 返回 `invalid api key`
-
-**原因**：客户端密钥配置错误。  
-**解决**：检查客户端是否配置了正确的 API Key（默认 `sk-gemini`）。
-
-### Q: WorkBuddy 中使用出现串扰
-
-**原因**：多模型并发请求共享全局配置。  
-**解决**：当前版本已通过请求级配置隔离解决此问题。
+> **Kontrol Thinking Depth:** Anda dapat menambahkan suffix `@think=N` (0 = terdalam, 4 = teringkas) pada nama model, contoh: `gemini-3.6-flash@think=0`.
 
 ---
 
-## 📊 支持模型列表
+## ❓ Tanya Jawab & Troubleshooting (FAQ)
 
-| 模型 ID | 类型 | 说明 |
-|---------|------|------|
-| `gemini-3.6-flash` | FAST | 最新全能模型 |
-| `gemini-3.5-flash` | FAST | 3.6 Flash 的别名 |
-| `gemini-3.5-flash-thinking` | THINKING | 深度思考模式 |
-| `gemini-3.1-pro` | PRO | 专业版（需 Cookie） |
-| `gemini-auto` | AUTO | 自动模型选择 |
-| `gemini-3.5-flash-thinking-lite` | DYNAMIC | 自适应动态思考 |
-| `gemini-flash-lite` | LITE | 轻量级快速模型 |
+### Q: Muncul pesan `empty response from server` di NextChat
+**Penyebab:** Masalah parser SSE pada klien lama.  
+**Solusi:** Pastikan kode `worker.js` Anda menggunakan versi terbaru dari repository ini yang telah memformat SSE secara baku.
 
-支持通过 `@think=` 参数覆盖思考模式：
-- `gemini-3.6-flash@think=0` — Flash 模型 + 深度思考
-- `gemini-3.1-pro@think=4` — Pro 模型 + 自动思考
+### Q: Menerima respons `HTTP 429: Too Many Requests`
+**Penyebab:** Permintaan anonim telah mencapai limit Google.  
+**Solusi:** Konfigurasikan variabel `COOKIE_STRING` dan `SAPISID` pada pengaturan environment Cloudflare.
+
+### Q: Muncul pesan `invalid api key`
+**Penyebab:** Kunci API yang dikirimkan klien tidak sesuai dengan whitelist.  
+**Solusi:** Periksa apakah klien Anda mengirimkan header `Authorization: Bearer <key>` yang cocok dengan variabel `API_KEYS` (default: `sk-gemini`).
 
 ---
 
-## 📝 更新日志
+## 📝 Catatan Rilis
 
-| 版本 | 日期 | 更新内容 |
-|------|------|---------|
-| 1.5.0 | 2026-07-31 | 新增多指纹轮换、多Cookie轮换、随机延迟机制 |
-| 1.4.0 | 2026-07-30 | 修复并发串扰、速率限制内存安全 |
-| 1.3.0 | 2026-07-29 | 修复 SSE 流式格式、NextChat 兼容性 |
-| 1.0.0 | 2026-07-16 | 初始版本，基于 gemini-web2api v1.1.0 移植 |
+| Versi | Pembaruan |
+| :--- | :--- |
+| **1.5.0** | Penambahan rotasi multi-fingerprint, rotasi multi-cookie, dan jeda mikro acak. |
+| **1.4.0** | Perbaikan isolasi konfigurasi konkuren (*concurrency safety*) & memori rate limiter. |
+| **1.3.0** | Standardisasi format streaming SSE untuk kompatibilitas penuh NextChat & Cherry Studio. |
+| **1.0.0** | Rilis perdana porting Cloudflare Workers berbasis arsitektur v1.1.0. |
 
 ---
 
-## 📄 许可证
+## 📄 Lisensi
 
-本项目基于原项目 [gemini-web-to-api](https://github.com/xyvren/gemini-web-to-api) 移植，遵循原项目的开源协议。
+Didistribusikan di bawah lisensi [MIT](../LICENSE) sebagai bagian dari proyek [gemini-web-to-api](https://github.com/xyvren/gemini-web-to-api).
