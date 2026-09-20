@@ -11,11 +11,6 @@
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.8+-38bdf8.svg?logo=python" alt="Python 3.8+"></a>
 </p>
 
-<p align="center">
-  <a href="README_EN.md">English Documentation</a> •
-  <a href="README_CN.md">中文文档</a>
-</p>
-
 ---
 
 ## 📌 Ringkasan
