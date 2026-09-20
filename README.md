@@ -1,305 +1,252 @@
-# gemini-web2api
+# Gemini Web2API
 
 <p align="center">
-  <img src="logo.png" width="200" alt="gemini-web2api logo">
+  <img src="logo.png" width="180" alt="gemini-web2api logo">
 </p>
 
-[中文文档](README_CN.md)
+<p align="center">
+  <b>Konversi antarmuka Google Gemini Web menjadi API lokal yang kompatibel dengan format OpenAI secara gratis dan efisien.</b>
+</p>
 
-Convert Google Gemini's web interface into an OpenAI-compatible API. Zero cost, cross-platform, single file.
+<p align="center">
+  <a href="README_EN.md">English Documentation</a> •
+  <a href="README_CN.md">中文文档</a>
+</p>
 
-## Features
+---
 
-- **Optional API Keys**: no auth when `api_keys` is empty, OpenAI-style Bearer auth when configured
-- **OpenAI Compatible**: Drop-in replacement for `/v1/chat/completions` and `/v1/models`
-- **Tool Calling**: Full function calling support (OpenAI format)
-- **Multiple Models**: Flash (3.6), Extended Thinking (20k+ char output), Pro, Auto, Lite
-- **Thinking Depth**: Adjustable via `@think=N` suffix (0=deepest, 4=shallowest)
-- **Web Search**: Built-in internet access (Gemini's native search)
-- **Cross-Platform**: Pure Python, single optional dependency (`httpx` for streaming)
-- **Streaming**: SSE streaming support via `httpx`
-- **Codex CLI**: Responses API (`/v1/responses`) for OpenAI Codex integration
-- **Gemini CLI**: Google native API (`/v1beta/models`) for Gemini CLI compatibility
+## 📌 Ringkasan
 
-## Quick Start
+**Gemini Web2API** adalah jembatan (*reverse-proxy*) ringan yang mengubah antarmuka web publik Google Gemini menjadi endpoint API standar OpenAI (`/v1/chat/completions` dan `/v1/models`).
 
-```bash
-pip install httpx
-python gemini_web2api.py
-```
+Dengan project ini, Anda dapat menghubungkan kapabilitas model Gemini ke berbagai aplikasi AI klien seperti **Cherry Studio**, **ChatBox**, **NextChat**, **OpenWebUI**, **Cursor**, **Cline**, ataupun script otomasi berbasis OpenAI SDK tanpa biaya langganan API berbayar.
 
-Server starts at `http://localhost:8081/v1`.
+---
 
-## Client Configuration
+## ✨ Fitur Utama
 
-### Cherry Studio / ChatBox / any OpenAI client
+- **100% OpenAI Compatible:** *Drop-in replacement* untuk endpoint `/v1/chat/completions` dan `/v1/models`.
+- **Dukungan Model Terbaru:** Mendukung model seri **`gemini-3.8`**, **`gemini-3.8-flash`**, **`gemini-3.8-thinking`**, serta lini 3.7 dan 3.6.
+- **Graceful Model Fallback:** Mencegah error 400 jika klien meminta nama varian model baru; otomatis diarahkan ke engine model yang aktif.
+- **Built-in Web Test Client:** Antarmuka web interaktif lokal (`test-chat.html`) untuk menguji koneksi, model, dan streaming langsung dari browser.
+- **Real-time SSE Streaming:** Streaming respons token-by-token menggunakan pustaka `httpx`.
+- **Kontrol Kedalaman Berpikir (*Thinking Depth*):** Penyesuaian durasi berpikir model reasoning menggunakan suffix `@think=N` (0 = paling mendalam, 4 = cepat/ringkas).
+- **One-Click Windows Launcher:** Disertakan script otomatis (`start-gemini-web2api.bat` dan `open-test-web.bat`) untuk kemudahan penggunaan di Windows.
+- **Autentikasi Fleksibel:** Pengamanan endpoint menggunakan Bearer Token lokal (`api_keys`).
+- **Akses Anonim:** Berjalan secara default tanpa memerlukan cookie akun Google pribadi.
 
-| Field | Value |
-|-------|-------|
-| Base URL | `http://localhost:8081/v1` |
-| API Key | any `api_keys` value from `config.json`; anything if not configured |
-| Model | `gemini-3.5-flash-thinking` |
+---
 
-### curl
+## 📋 Daftar Model yang Didukung
 
-#### bash / macOS / Linux
+| Model ID | Mode / Deskripsi | Estimasi Output |
+| :--- | :--- | :--- |
+| **`gemini-3.8`** | Model serbaguna Gemini 3.8 (*Fast mode*) | ~12k karakter |
+| **`gemini-3.8-flash`** | Versi Flash Gemini 3.8 berkecepatan tinggi | ~12k karakter |
+| **`gemini-3.8-thinking`** | Gemini 3.8 dengan penalaran mendalam (*Extended Thinking*) | ~20k karakter |
+| **`gemini-3.7-flash`** | Model Flash generasi 3.7 | ~12k karakter |
+| **`gemini-3.6-flash`** | Model default stabil (*recommended fallback*) | ~12k karakter |
+| **`gemini-3.5-flash-thinking`** | Penalaran mendalam generasi 3.5 | ~20k karakter |
+| **`gemini-3.5-flash-thinking-lite`**| Penalaran dinamis dengan kedalaman adaptif | ~15k karakter |
+| **`gemini-flash-lite`** | Model paling ringan dengan latensi terendah | ~10k karakter |
+| **`gemini-auto`** | Pemilihan model otomatis oleh sistem Gemini | Bervariasi |
+| **`gemini-3.1-pro`** | Mode Pro (*memerlukan cookie akun Gemini Advanced*) | ~12k karakter |
 
-```bash
-curl http://localhost:8081/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer sk-your-key" \
-  -d '{"model":"gemini-3.5-flash","messages":[{"role":"user","content":"Hello!"}]}'
-```
+> **Tips Thinking Mode:** Anda dapat menambahkan suffix `@think=0` (terdalam) hingga `@think=4` (tercepat) di belakang nama model saat request, contoh: `gemini-3.8-thinking@think=2`.
 
-#### PowerShell (Windows)
+---
 
-```powershell
-curl.exe --% http://127.0.0.1:8081/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer sk-your-key" -d "{\"model\":\"gemini-3.5-flash\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello!\"}]}"
-```
+## 🚀 Panduan Instalasi & Menjalankan
 
-> Note: On Windows PowerShell, use `curl.exe` and `--%` so PowerShell does not reinterpret JSON quoting or curl options.
+### Persyaratan Sistem
+- Sistem Operasi: Windows 10/11, macOS, atau Linux
+- Python: Versi 3.8 atau lebih baru
+- Git
 
-### OpenAI Python SDK
+---
 
-```python
-from openai import OpenAI
-client = OpenAI(base_url="http://localhost:8081/v1", api_key="sk-your-key")
-resp = client.chat.completions.create(
-    model="gemini-3.5-flash-thinking",
-    messages=[{"role": "user", "content": "Explain quantum computing"}]
-)
-print(resp.choices[0].message.content)
-```
+### Cara Cepat (Pengguna Windows)
 
-### Gemini CLI
+#### Opsi 1: Versi Portable Standalone (.exe)
+Tersedia file executable mandiri tanpa perlu install Python:
+- Cukup double-click **`gemini-web2api-portable.exe`**.
+- Server langsung aktif dan Web UI pengujian otomatis siap diakses.
+- Untuk membangun ulang file executable ini kapan saja, cukup jalankan **`build-portable.bat`**.
 
-```bash
-export GEMINI_API_KEY=none
-export GOOGLE_GEMINI_BASE_URL=http://localhost:8081
-gemini
-```
+#### Opsi 2: Script Batch (.bat)
+- Double-click **`start-gemini-web2api.bat`** untuk menyalakan server.
+- Double-click **`open-test-web.bat`** untuk membuka antarmuka chat di browser.
 
-Supports Google native API endpoints:
-- `GET /v1beta/models` — list models
-- `POST /v1beta/models/{model}:generateContent` — non-streaming
-- `POST /v1beta/models/{model}:streamGenerateContent` — streaming (SSE)
+---
 
-## Available Models
+### Cara Manual (CLI / Terminal)
 
-| Model | Description | Output |
-|-------|-------------|--------|
-| `gemini-3.6-flash` | All-around model (latest) | ~12k chars |
-| `gemini-3.5-flash` | Alias for gemini-3.6-flash | ~12k chars |
-| `gemini-3.5-flash-thinking` | Extended thinking, longest output | **~20k chars** |
-| `gemini-3.5-flash-thinking-lite` | Adaptive thinking depth | ~15k chars |
-| `gemini-3.1-pro` | Advanced math & code (needs cookie) | ~12k chars |
-| `gemini-auto` | Auto model selection | varies |
-| `gemini-flash-lite` | Fastest answers, lightweight | ~10k chars |
+1. **Clone repository:**
+   ```bash
+   git clone https://github.com/xyvren/gemini-web2api.git
+   cd gemini-web2api
+   ```
 
-### Thinking Depth
+2. **Buat & aktifkan virtual environment:**
+   ```bash
+   # Windows (CMD / PowerShell)
+   python -m venv .venv
+   .venv\Scripts\activate
 
-Append `@think=N` to any model name:
+   # Linux / macOS
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
 
-```
-gemini-3.5-flash-thinking@think=0   # deepest (default)
-gemini-3.5-flash-thinking@think=2   # medium
-gemini-3.5-flash-thinking@think=4   # shallowest
-```
+3. **Install dependensi:**
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
 
-## Optional: Cookie for Pro
+4. **Siapkan konfigurasi (`config.json`):**
+   Salin dari `config.example.json`:
+   ```bash
+   cp config.example.json config.json
+   ```
 
-Anonymous access works for all models, but `gemini-3.1-pro` routes to Flash without authentication. To get real Pro routing, you need a **Gemini Advanced (paid subscription)** account cookie:
+5. **Jalankan server:**
+   ```bash
+   python gemini_web2api.py --config config.json
+   ```
+   Server akan aktif di:
+   - Status: `http://127.0.0.1:8081/`
+   - Base URL API: `http://127.0.0.1:8081/v1`
 
-```bash
-python gemini_web2api.py --cookie-file cookie.txt
-```
+---
 
-### How to get cookies
+## ⚙️ Konfigurasi (`config.json`)
 
-1. Open Chrome, go to [gemini.google.com](https://gemini.google.com) and sign in with a **Gemini Advanced** Google account
-2. Open DevTools (F12) → Application → Cookies → `https://gemini.google.com`
-3. Copy these cookie values: `SID`, `HSID`, `SSID`, `APISID`, `SAPISID`, `__Secure-1PSID`
-4. Create `cookie.txt` in this format:
-
-```
-SID=your_sid_value; HSID=your_hsid_value; SSID=your_ssid_value; APISID=your_apisid_value; SAPISID=your_sapisid_value; __Secure-1PSID=your_1psid_value
-```
-
-Or use the JSON format:
-```json
-{"cookie": "SID=xxx; HSID=xxx; SSID=xxx; APISID=xxx; SAPISID=xxx; __Secure-1PSID=xxx", "sapisid": "your_sapisid_value"}
-```
-
-**Alternative (browser extension)**: Use any "Export Cookies" extension to export cookies for `gemini.google.com` in Netscape format, then convert to the single-line format above.
-
-### Authenticated account path and XSRF token
-
-If the signed-in Gemini page URL contains an account index, such as:
-
-```
-https://gemini.google.com/u/1/app/...
-```
-
-set `auth_user` to that index. Authenticated web requests may also require the page XSRF token. In the rendered Gemini page source, this token is exposed as `SNlM0e`; pass it as `xsrf_token` in `config.json`. The server sends it as the `at` form field.
-
-Example:
-
-```json
-{
-  "cookie_file": "/app/cookie.txt",
-  "auth_user": "1",
-  "xsrf_token": "AOOh0P...",
-  "gemini_bl": "boq_assistant-bard-web-server_YYYYMMDD.xx_p0"
-}
-```
-
-If authenticated requests return HTTP 400 with an `xsrf` error, refresh Gemini Web, update `xsrf_token`, and make sure `auth_user` matches the `/u/<index>/` part of the browser URL.
-
-Pro routing requires **Gemini Advanced** (paid subscription). A free Google account cookie will authenticate but silently fall back to Flash.
-
-## Configuration
-
-Create `config.json` in the same directory:
+Contoh file konfigurasi `config.json` untuk penggunaan lokal:
 
 ```json
 {
   "port": 8081,
-  "host": "0.0.0.0",
+  "host": "127.0.0.1",
   "retry_attempts": 3,
   "retry_delay_sec": 2,
   "request_timeout_sec": 180,
-  "gemini_bl": "boq_assistant-bard-web-server_20260716.08_p0",
-  "auth_user": null,
-  "xsrf_token": null,
-  "api_keys": ["sk-your-key"],
+  "default_model": "gemini-3.6-flash",
+  "api_keys": [
+    "sk-gemini-local"
+  ],
   "cookie_file": null,
   "proxy": null,
   "log_requests": true,
-  "temporary_chats": false
+  "temporary_chats": true
 }
 ```
 
-Set `temporary_chats` to `true` to use Gemini Web temporary chats instead of
-persisting conversations to the account history.
-
-When `api_keys` is `[]`, authentication is disabled. When one or more keys are set, `/v1/*` endpoints require `Authorization: Bearer <key>` or `x-api-key: <key>`.
-
-## Docker
-
-```bash
-cp config.example.json config.json
-docker build -t gemini-web2api .
-docker run -d --name gemini-web2api -p 8081:8081 -v ./config.json:/app/config.json gemini-web2api
-```
-
-Or use Docker Compose:
-
-```bash
-cp config.example.json config.json
-docker compose up -d
-```
-
-To mount a cookie file:
-
-```bash
-docker run -d --name gemini-web2api -p 8081:8081 -v ./config.json:/app/config.json -v ./cookie.txt:/app/cookie.txt gemini-web2api
-```
-
-Set `"cookie_file": "/app/cookie.txt"` in `config.json`.
-
-> **Note**: If you get empty responses (`content: null`) with Docker's default bridge network, switch to host networking: `docker run --network host ...` or add `network_mode: host` in your compose file. This is caused by Gemini's upstream rejecting requests from certain Docker NAT IP ranges.
-
-## Proxy
-
-If you cannot access `gemini.google.com` directly (connection timeout), configure a proxy:
-
-**Method 1: CLI argument**
-```bash
-python gemini_web2api.py --proxy http://127.0.0.1:7890
-```
-
-**Method 2: config.json**
-```json
-{"proxy": "http://127.0.0.1:7890"}
-```
-
-**Method 3: Environment variable** (auto-detected)
-```bash
-export HTTPS_PROXY=http://127.0.0.1:7890
-python gemini_web2api.py
-```
-
-Works with Clash, V2Ray, Shadowsocks, or any HTTP proxy.
-
-## Tool Calling
-
-```python
-resp = client.chat.completions.create(
-    model="gemini-3.5-flash",
-    messages=[{"role": "user", "content": "What's the weather in Tokyo?"}],
-    tools=[{
-        "type": "function",
-        "function": {
-            "name": "get_weather",
-            "description": "Get weather for a city",
-            "parameters": {"type": "object", "properties": {"city": {"type": "string"}}, "required": ["city"]}
-        }
-    }]
-)
-```
-
-## Image Input
-
-OpenAI-style multimodal messages are supported for Chat Completions and the
-Responses API. Use either HTTP(S) image URLs or base64 data URLs:
-
-```python
-resp = client.chat.completions.create(
-    model="gemini-3.6-flash",
-    messages=[{
-        "role": "user",
-        "content": [
-            {"type": "text", "text": "Describe this image"},
-            {"type": "image_url", "image_url": {"url": "https://example.com/image.png"}}
-        ]
-    }]
-)
-```
-
-## Limitations
-
-- **Image upload may require cookies**: Multimodal input uses Gemini Web's image upload endpoint. If anonymous upload fails, configure a Gemini cookie.
-- **Not real Pro/Ultra**: Without a paid subscription cookie, `gemini-3.1-pro` routes to the same Flash model. The "Pro" label is a UI preference, not a backend model switch.
-- **Single-turn only**: Each request is an independent conversation. Multi-turn context is simulated by including previous messages in the prompt.
-- **Rate limits**: Google may throttle high-frequency requests. The server retries automatically but sustained heavy use may be blocked.
-
-## Requirements
-
-- Python 3.8+
-- `httpx` (`pip install httpx`) — used for streaming requests
-- Network access to `gemini.google.com` (proxy/VPN may be needed in some regions)
-
-## How It Works
-
-This tool reverse-engineers Google Gemini's web StreamGenerate protocol. It sends requests to the same endpoint that the Gemini web app uses, converting between OpenAI's API format and Gemini's internal protobuf-like format.
-
-The model selection is controlled by field `[79]` in the request payload, mapped from Gemini's frontend JavaScript source (`MODE_CATEGORY` enum).
-
-## Acknowledgments
-
-- Inspired by the open-source API proxy ecosystem
-
-## License
-
-MIT
+* **`port`**: Port lokal yang digunakan (default: `8081`).
+* **`host`**: Host binding (`127.0.0.1` disarankan untuk keamanan lokal).
+* **`api_keys`**: Kunci API yang diperlukan klien (misal: `sk-gemini-local`). Kosongkan array `[]` jika tidak ingin proteksi API Key.
+* **`temporary_chats`**: Jika `true`, percakapan tidak disimpan dalam riwayat akun Gemini.
+* **`proxy`**: Alamat HTTP/HTTPS proxy jika jaringan Anda memerlukan koneksi proxy (contoh: `"http://127.0.0.1:7890"`).
 
 ---
 
-## 致谢
+## 🔌 Contoh Penggunaan & Integrasi
 
-本项目的开发 agent 能力由 [GenericAgent](https://github.com/lsdefine/GenericAgent) 提供。
+### 1. Web Test Client Bawaan
+Buka file `test-chat.html` di browser Anda. Anda dapat langsung:
+- Memilih model dari dropdown (otomatis memuat dari `/v1/models`).
+- Mengetes streaming respons teks.
+- Menguji fungsi cancel/stop response dan copy code blocks.
 
-### 🚩 友情链接
+---
 
-[![GenericAgent](https://img.shields.io/badge/Agent_Framework-GenericAgent-orange?style=for-the-badge&logo=github)](https://github.com/lsdefine/GenericAgent)
-[![LinuxDo](https://img.shields.io/badge/社区-LinuxDo-blue?style=for-the-badge)](https://linux.do/)
+### 2. cURL
+
+**Chat Completion:**
+```bash
+curl http://127.0.0.1:8081/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sk-gemini-local" \
+  -d '{
+    "model": "gemini-3.8",
+    "messages": [
+      {"role": "user", "content": "Halo! Siapa kamu?"}
+    ]
+  }'
+```
+
+**Daftar Model:**
+```bash
+curl http://127.0.0.1:8081/v1/models \
+  -H "Authorization: Bearer sk-gemini-local"
+```
+
+---
+
+### 3. Python (OpenAI SDK)
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://127.0.0.1:8081/v1",
+    api_key="sk-gemini-local"
+)
+
+response = client.chat.completions.create(
+    model="gemini-3.8",
+    messages=[
+        {"role": "user", "content": "Jelaskan konsep dasar komputasi kuantum secara singkat."}
+    ]
+)
+
+print(response.choices[0].message.content)
+```
+
+---
+
+### 4. Cherry Studio / ChatBox / NextChat / Client Lainnya
+
+Masukkan parameter koneksi berikut pada pengaturan penyedia *OpenAI Custom*:
+
+* **API Provider:** OpenAI Compatible
+* **Base URL / Host:** `http://127.0.0.1:8081/v1`
+* **API Key:** `sk-gemini-local` (sesuai isi `config.json`)
+* **Model ID:** `gemini-3.8`, `gemini-3.8-thinking`, atau `gemini-3.6-flash`
+
+---
+
+## 📁 Struktur Folder
+
+```text
+gemini-web2api/
+├── gemini_web2api/              # Modul internal & handler API
+│   ├── __main__.py
+│   ├── config.py
+│   ├── gemini.py
+│   ├── models.py                # Definisi & mapping model
+│   └── server.py
+├── config.example.json          # Template file konfigurasi
+├── gemini_web2api.py            # Script server utama
+├── requirements.txt             # Daftar dependensi Python
+├── test-chat.html               # Antarmuka web pengujian lokal
+├── start-gemini-web2api.bat     # Windows one-click server launcher
+├── open-test-web.bat            # Windows one-click web client launcher
+├── README.md                    # Dokumentasi utama (Bahasa Indonesia)
+├── README_EN.md                 # English documentation
+└── README_CN.md                 # 中文文档
+```
+
+---
+
+## 🛡️ Keamanan & Privasi
+
+1. **Jaringan Lokal:** Server secara default berjalan pada interface loopback `127.0.0.1` sehingga aman dan tidak dapat diakses dari jaringan luar/internet tanpa konfigurasi eksplisit.
+2. **Kredensial Sensitif:** File `config.json` dan file sesi lokal lainnya telah dimasukkan ke dalam `.gitignore` agar tidak terunggah ke publik saat Anda melakukan `git push`.
+3. **Penyimpanan Cookie:** Proyek ini dapat berjalan penuh dalam mode anonim tanpa perlu mengunggah akun atau kredensial Google Anda.
+
+---
+
+## 📄 Lisensi
+
+Didistribusikan di bawah lisensi [MIT](LICENSE).

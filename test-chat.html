@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gemini Web2API - Test Client</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-hover: #334155;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --primary-hover: #0ea5e9;
+      --accent: #6366f1;
+      --user-msg: #2563eb;
+      --bot-msg: #1e293b;
+      --code-bg: #0b0f19;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-badge.error {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .status-badge.testing {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--primary);
+      border-color: rgba(56, 189, 248, 0.3);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    button {
+      background: var(--surface-hover);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    button:hover {
+      background: #475569;
+    }
+
+    button.primary {
+      background: var(--primary);
+      color: #041226;
+      border: none;
+      font-weight: 600;
+    }
+
+    button.primary:hover {
+      background: var(--primary-hover);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .config-panel {
+      background: #151f32;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    input, select, textarea {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+    }
+
+    .checkbox-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      margin-top: 14px;
+      user-select: none;
+    }
+
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-width: 1000px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .message-row {
+      display: flex;
+      gap: 12px;
+      max-width: 85%;
+    }
+
+    .message-row.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .message-row.assistant {
+      align-self: flex-start;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--surface-hover);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .user .avatar {
+      background: var(--user-msg);
+      color: white;
+    }
+
+    .assistant .avatar {
+      background: linear-gradient(135deg, #38bdf8, #6366f1);
+      color: #041226;
+    }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      word-break: break-word;
+    }
+
+    .user .bubble {
+      background: var(--user-msg);
+      color: #ffffff;
+      border-bottom-right-radius: 2px;
+    }
+
+    .assistant .bubble {
+      background: var(--bot-msg);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 2px;
+    }
+
+    .meta {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bubble pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      margin: 8px 0;
+      overflow-x: auto;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.85rem;
+      position: relative;
+    }
+
+    .bubble code {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    .bubble pre code {
+      background: none;
+      padding: 0;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      padding: 3px 8px;
+      font-size: 0.7rem;
+      background: #1e293b;
+      opacity: 0.8;
+    }
+
+    .copy-btn:hover {
+      opacity: 1;
+    }
+
+    .suggestions {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 6px 0;
+      margin-bottom: 8px;
+      scrollbar-width: none;
+    }
+
+    .suggestion-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .suggestion-chip:hover {
+      color: var(--text);
+      border-color: var(--primary);
+    }
+
+    .input-area {
+      padding: 12px 0 20px 0;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .input-container {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+    }
+
+    .input-container:focus-within {
+      border-color: var(--primary);
+    }
+
+    textarea#user-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      resize: none;
+      max-height: 150px;
+      min-height: 24px;
+      padding: 4px;
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    textarea#user-input:focus {
+      outline: none;
+    }
+
+    .controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+      .config-panel {
+        grid-template-columns: 1fr;
+      }
+      .message-row {
+        max-width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="avatar assistant" style="width: 28px; height: 28px;">⚡</div>
+      <h1>Gemini Web2API Client</h1>
+      <div id="conn-badge" class="status-badge testing">
+        <span class="dot"></span>
+        <span id="conn-text">Mengecek koneksi...</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button onclick="refreshModels()" title="Muat ulang daftar model">🔄 Reload Model</button>
+      <button onclick="clearChat()" title="Hapus pesan saat ini">🗑️ Clear Chat</button>
+    </div>
+  </header>
+
+  <section class="config-panel">
+    <div class="field">
+      <label for="base-url">Base URL</label>
+      <input type="text" id="base-url" value="http://127.0.0.1:8081/v1" />
+    </div>
+    <div class="field">
+      <label for="api-key">API Key</label>
+      <input type="text" id="api-key" value="sk-gemini-local" />
+    </div>
+    <div class="field">
+      <label for="model-select">Model</label>
+      <select id="model-select">
+        <option value="gemini-3.8">gemini-3.8</option>
+        <option value="gemini-3.8-flash">gemini-3.8-flash</option>
+        <option value="gemini-3.8-thinking">gemini-3.8-thinking</option>
+        <option value="gemini-3.6-flash">gemini-3.6-flash</option>
+        <option value="gemini-3.7-flash">gemini-3.7-flash</option>
+        <option value="gemini-3.5-flash">gemini-3.5-flash</option>
+        <option value="gemini-3.5-flash-thinking">gemini-3.5-flash-thinking</option>
+        <option value="gemini-flash-lite">gemini-flash-lite</option>
+      </select>
+    </div>
+    <label class="checkbox-field">
+      <input type="checkbox" id="stream-toggle" checked />
+      <span>Stream Output</span>
+    </label>
+  </section>
+
+  <main class="main-container">
+    <div class="chat-box" id="chat-box">
+      <div class="message-row assistant">
+        <div class="avatar assistant">🤖</div>
+        <div class="bubble-wrapper">
+          <div class="bubble">
+            Halo! Web test client Gemini Web2API sudah siap. Silakan ketik pertanyaan atau pilih contoh prompt di bawah untuk mencoba respons model.
+          </div>
+          <div class="meta">Server lokal: http://127.0.0.1:8081/v1</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="suggestions">
+        <div class="suggestion-chip" onclick="applySuggestion('Balas dengan kalimat: Gemini Web2API berhasil berjalan.')">✨ Verifikasi Tes</div>
+        <div class="suggestion-chip" onclick="applySuggestion('Siapa kamu dan apa kelebihan model ini?')">💡 Siapa kamu?</div>
+        <div class="suggestion-chip" onclick="applySuggestion('Tuliskan script Python untuk menghitung fibonacci secara rekursif dan memoization.')">🐍 Contoh Python</div>
+        <div class="suggestion-chip" onclick="applySuggestion('Berikan ringkasan singkat tentang sejarah internet dalam 3 poin.')">📚 3 Poin Sejarah Internet</div>
+      </div>
+
+      <div class="input-container">
+        <textarea id="user-input" rows="1" placeholder="Tulis pesan... (Tekan Enter untuk kirim, Shift+Enter untuk baris baru)" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+        <button id="send-btn" class="primary" onclick="sendMessage()">Kirim</button>
+        <button id="stop-btn" style="display: none; background: var(--danger); border: none; color: white;" onclick="abortRequest()">Stop</button>
+      </div>
+
+      <div class="controls-row">
+        <span>Koneksi aman ke server lokal loopback (127.0.0.1)</span>
+        <span>Enter kirim • Shift+Enter baris baru</span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let abortController = null;
+    const chatHistory = [];
+
+    // Load saved settings
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedBaseUrl = localStorage.getItem('gemini_web2api_base');
+      const savedKey = localStorage.getItem('gemini_web2api_key');
+      const savedModel = localStorage.getItem('gemini_web2api_model');
+      if (savedBaseUrl) document.getElementById('base-url').value = savedBaseUrl;
+      if (savedKey) document.getElementById('api-key').value = savedKey;
+      
+      refreshModels();
+    });
+
+    function saveSettings() {
+      localStorage.setItem('gemini_web2api_base', document.getElementById('base-url').value.trim());
+      localStorage.setItem('gemini_web2api_key', document.getElementById('api-key').value.trim());
+      localStorage.setItem('gemini_web2api_model', document.getElementById('model-select').value);
+    }
+
+    function setStatus(status, text) {
+      const badge = document.getElementById('conn-badge');
+      const label = document.getElementById('conn-text');
+      badge.className = `status-badge ${status}`;
+      label.textContent = text;
+    }
+
+    async function refreshModels() {
+      const baseUrl = document.getElementById('base-url').value.trim();
+      const apiKey = document.getElementById('api-key').value.trim();
+      saveSettings();
+
+      setStatus('testing', 'Mengecek...');
+      try {
+        const resp = await fetch(`${baseUrl}/models`, {
+          headers: {
+            'Authorization': `Bearer ${apiKey}`
+          }
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        
+        if (data && data.data && Array.isArray(data.data)) {
+          const select = document.getElementById('model-select');
+          const currentVal = select.value;
+          select.innerHTML = '';
+          data.data.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.id;
+            opt.textContent = `${m.id} ${m.description ? '(' + m.description.split('(')[0].trim() + ')' : ''}`;
+            select.appendChild(opt);
+          });
+          if ([...select.options].some(o => o.value === currentVal)) {
+            select.value = currentVal;
+          }
+          setStatus('ready', 'Terhubung');
+        } else {
+          setStatus('ready', 'Terhubung (default)');
+        }
+      } catch (err) {
+        console.error(err);
+        setStatus('error', `Offline / ${err.message}`);
+      }
+    }
+
+    function autoResize(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 150) + 'px';
+    }
+
+    function handleKeyDown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function applySuggestion(text) {
+      const input = document.getElementById('user-input');
+      input.value = text;
+      autoResize(input);
+      input.focus();
+    }
+
+    function clearChat() {
+      chatHistory.length = 0;
+      const box = document.getElementById('chat-box');
+      box.innerHTML = `
+        <div class="message-row assistant">
+          <div class="avatar assistant">🤖</div>
+          <div class="bubble-wrapper">
+            <div class="bubble">Riwayat chat telah dibersihkan. Silakan mulai percakapan baru.</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function formatMarkdown(text) {
+      if (!text) return '';
+      // Escape basic HTML
+      let html = escapeHtml(text);
+
+      // Code blocks ```code```
+      html = html.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+        return `<pre><button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.querySelector('code').innerText); this.innerText='Tersalin!'; setTimeout(()=>this.innerText='Copy', 1500);">Copy</button><code>${code}</code></pre>`;
+      });
+
+      // Inline code
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+      // Bold **text**
+      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+      // Italic *text*
+      html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+      // Line breaks
+      html = html.replace(/\n/g, '<br/>');
+
+      return html;
+    }
+
+    function appendMessage(role, content, initialTime = Date.now()) {
+      const box = document.getElementById('chat-box');
+      const row = document.createElement('div');
+      row.className = `message-row ${role}`;
+
+      const avatar = document.createElement('div');
+      avatar.className = `avatar ${role}`;
+      avatar.textContent = role === 'user' ? '👤' : '🤖';
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'bubble-wrapper';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.innerHTML = formatMarkdown(content);
+
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = new Date(initialTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      wrapper.appendChild(bubble);
+      wrapper.appendChild(meta);
+      row.appendChild(avatar);
+      row.appendChild(wrapper);
+      box.appendChild(row);
+
+      box.scrollTop = box.scrollHeight;
+      return { bubble, meta, row };
+    }
+
+    function abortRequest() {
+      if (abortController) {
+        abortController.abort();
+        abortController = null;
+      }
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('user-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const baseUrl = document.getElementById('base-url').value.trim();
+      const apiKey = document.getElementById('api-key').value.trim();
+      const model = document.getElementById('model-select').value;
+      const isStream = document.getElementById('stream-toggle').checked;
+      saveSettings();
+
+      input.value = '';
+      autoResize(input);
+
+      // Add user message
+      chatHistory.push({ role: 'user', content: text });
+      appendMessage('user', text);
+
+      // UI state
+      const sendBtn = document.getElementById('send-btn');
+      const stopBtn = document.getElementById('stop-btn');
+      sendBtn.style.display = 'none';
+      stopBtn.style.display = 'inline-flex';
+
+      const startTime = performance.now();
+      const assistantMsg = appendMessage('assistant', 'Menunggu balasan...');
+      let accumulatedText = '';
+
+      abortController = new AbortController();
+
+      try {
+        const payload = {
+          model: model,
+          messages: chatHistory,
+          stream: isStream
+        };
+
+        const response = await fetch(`${baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify(payload),
+          signal: abortController.signal
+        });
+
+        if (!response.ok) {
+          const errBody = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errBody}`);
+        }
+
+        if (isStream) {
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder('utf-8');
+          let buffer = '';
+
+          assistantMsg.bubble.innerHTML = '';
+
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop(); // keep partial line
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed || trimmed.startsWith(':')) continue;
+              if (trimmed === 'data: [DONE]') continue;
+              if (trimmed.startsWith('data: ')) {
+                try {
+                  const json = JSON.parse(trimmed.slice(6));
+                  const delta = json.choices?.[0]?.delta?.content;
+                  if (delta) {
+                    accumulatedText += delta;
+                    assistantMsg.bubble.innerHTML = formatMarkdown(accumulatedText);
+                    document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+                  }
+                } catch (e) {
+                  // ignore JSON parse chunk errors
+                }
+              }
+            }
+          }
+          chatHistory.push({ role: 'assistant', content: accumulatedText });
+        } else {
+          const json = await response.json();
+          accumulatedText = json.choices?.[0]?.message?.content || '(Kosong)';
+          assistantMsg.bubble.innerHTML = formatMarkdown(accumulatedText);
+          chatHistory.push({ role: 'assistant', content: accumulatedText });
+        }
+
+        const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
+        assistantMsg.meta.textContent = `${model} • ${elapsed}s`;
+        setStatus('ready', 'Terhubung');
+
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          assistantMsg.bubble.innerHTML = formatMarkdown(accumulatedText + '\n\n*(Dibatalkan oleh pengguna)*');
+          assistantMsg.meta.textContent = 'Dibatalkan';
+        } else {
+          console.error(err);
+          assistantMsg.bubble.innerHTML = `<span style="color: var(--danger);">⚠️ Error: ${escapeHtml(err.message)}</span>`;
+          assistantMsg.meta.textContent = 'Gagal';
+          setStatus('error', 'Error');
+        }
+      } finally {
+        sendBtn.style.display = 'inline-flex';
+        stopBtn.style.display = 'none';
+        abortController = null;
+        document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+      }
+    }
+  </script>
+</body>
+</html>

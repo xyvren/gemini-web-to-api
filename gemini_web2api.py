@@ -71,9 +71,21 @@ CONFIG = dict(DEFAULT_CONFIG)
 #   1=FAST, 2=THINKING, 3=PRO, 4=AUTO, 5=FAST_DYNAMIC_THINKING, 6=FLASH_LITE
 
 MODELS = {
+    "gemini-3.8": {
+        "mode": 1, "think": 4,
+        "desc": "Gemini 3.8",
+    },
+    "gemini-3.8-flash": {
+        "mode": 1, "think": 4,
+        "desc": "Latest all-around model (Gemini 3.8 Flash)",
+    },
+    "gemini-3.8-thinking": {
+        "mode": 2, "think": 0,
+        "desc": "Gemini 3.8 Deep thinking mode",
+    },
     "gemini-3.7-flash": {
         "mode": 1, "think": 4,
-        "desc": "Latest all-around model (Gemini 3.7 Flash)",
+        "desc": "All-around model (Gemini 3.7 Flash)",
     },
     "gemini-3.6-flash": {
         "mode": 1, "think": 4,
@@ -106,6 +118,25 @@ MODELS = {
 }
 
 # ─── Utilities ───────────────────────────────────────────────────────────────
+
+def load_web_ui() -> Optional[str]:
+    exe_dir = os.path.dirname(sys.executable) if getattr(sys, "frozen", False) else os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        os.path.join(exe_dir, "test-chat.html"),
+        os.path.join(os.getcwd(), "test-chat.html"),
+    ]
+    meipass = getattr(sys, "_MEIPASS", None)
+    if meipass:
+        candidates.append(os.path.join(meipass, "test-chat.html"))
+    for p in candidates:
+        if os.path.exists(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    return f.read()
+            except Exception:
+                pass
+    return None
+
 
 def log(msg: str):
     if CONFIG["log_requests"]:
@@ -691,7 +722,19 @@ class GeminiHandler(BaseHTTPRequestHandler):
                 ]})
             elif self.path.startswith("/v1beta/models"):
                 self._handle_google_models_list()
-            elif self.path == "/":
+            elif self.path in ("/", "/chat", "/web", "/test"):
+                accept = self.headers.get("Accept", "")
+                if self.path != "/" or "text/html" in accept:
+                    html_content = load_web_ui()
+                    if html_content:
+                        self.send_response(200)
+                        self.send_header("Content-Type", "text/html; charset=utf-8")
+                        self.send_header("Access-Control-Allow-Origin", "*")
+                        body = html_content.encode("utf-8")
+                        self.send_header("Content-Length", str(len(body)))
+                        self.end_headers()
+                        self.wfile.write(body)
+                        return
                 self.send_json({"status": "ok", "version": __version__,
                                 "models": list(MODELS.keys())})
             else:
@@ -756,10 +799,16 @@ class GeminiHandler(BaseHTTPRequestHandler):
         think_override = None
         if "@think=" in model_name:
             model_name, think_str = model_name.rsplit("@think=", 1)
-            think_override = int(think_str)
+            try:
+                think_override = int(think_str)
+            except ValueError:
+                return None, None, None, f"Invalid think level: {think_str}"
         cfg = MODELS.get(model_name)
         if not cfg:
-            return None, None, None, f"Unknown model: {model_name}"
+            default = CONFIG.get("default_model", "gemini-3.6-flash")
+            log(f"Unknown model '{model_name}', falling back to '{default}'")
+            model_name = default
+            cfg = MODELS.get(default) or MODELS["gemini-3.6-flash"]
         return model_name, cfg["mode"], (think_override if think_override is not None else cfg["think"]), None
 
     def _call_gemini(self, prompt, model_id, think_mode, tools, file_refs=None):
@@ -1059,15 +1108,33 @@ def main():
     parser.add_argument("--config", type=str, default=None)
     parser.add_argument("--cookie-file", type=str, default=None, help="Path to cookie file")
     parser.add_argument("--proxy", type=str, default=None, help="HTTP proxy, e.g. http://127.0.0.1:7890")
+    parser.add_argument("--open-browser", "--ui", action="store_true", default=False, help="Buka Web UI di browser saat start")
     parser.add_argument("--version", action="version", version=f"gemini-web2api {__version__}")
     args = parser.parse_args()
 
+    exe_dir = os.path.dirname(sys.executable) if getattr(sys, "frozen", False) else os.path.dirname(os.path.abspath(__file__))
     config_path = args.config or os.environ.get("GEMINI_WEB2API_CONFIG")
     if not config_path:
-        for p in ["./config.json", os.path.expanduser("~/.config/gemini-web2api/config.json")]:
+        for p in [
+            os.path.join(exe_dir, "config.json"),
+            "./config.json",
+            os.path.expanduser("~/.config/gemini-web2api/config.json")
+        ]:
             if os.path.exists(p):
                 config_path = p
                 break
+
+    if not config_path or not os.path.exists(config_path):
+        # Auto-generate default config if missing
+        default_target = os.path.join(exe_dir, "config.json")
+        try:
+            with open(default_target, "w", encoding="utf-8") as f:
+                json.dump(DEFAULT_CONFIG, f, indent=2)
+            config_path = default_target
+            log(f"Generated default config at: {config_path}")
+        except Exception as e:
+            log(f"Could not auto-generate config: {e}")
+
     load_config(config_path)
 
     if args.port:
@@ -1088,8 +1155,9 @@ def main():
     port = CONFIG["port"]
     server = ThreadedServer((CONFIG["host"], port), GeminiHandler)
     print(f"gemini-web2api v{__version__}")
-    print(f"  Listening: http://0.0.0.0:{port}")
-    print(f"  Base URL:  http://localhost:{port}/v1")
+    print(f"  Listening: http://{CONFIG['host']}:{port}")
+    print(f"  Base URL:  http://127.0.0.1:{port}/v1")
+    print(f"  Web UI:    http://127.0.0.1:{port}/")
     print(f"  Models:    {', '.join(MODELS.keys())}")
     print(f"  Cookie:    {'yes (' + CONFIG['cookie_file'] + ')' if CONFIG.get('cookie_file') else 'none (anonymous)'}")
     print(f"  Proxy:     {CONFIG.get('proxy') or 'none (uses system env HTTP_PROXY/HTTPS_PROXY)'}")
@@ -1097,6 +1165,14 @@ def main():
     print(f"  BL:        {CONFIG['gemini_bl']}")
     print(f"  Temporary: {'yes' if CONFIG.get('temporary_chats', False) else 'no'}")
     print()
+
+    if args.open_browser or os.environ.get("OPEN_BROWSER") == "1":
+        import threading
+        import webbrowser
+        def _open_tab():
+            time.sleep(0.8)
+            webbrowser.open(f"http://127.0.0.1:{port}/")
+        threading.Thread(target=_open_tab, daemon=True).start()
     try:
         server.serve_forever()
     except KeyboardInterrupt:
