@@ -4,6 +4,10 @@
   <img src="logo.png" width="200" alt="gemini-web2api logo">
 </p>
 
+<p align="center">
+  <img src="screenshot.png" width="850" alt="Gemini Web2API Client Screenshot">
+</p>
+
 [中文文档](README_CN.md)
 
 Convert Google Gemini's web interface into an OpenAI-compatible API. Zero cost, cross-platform, single file.

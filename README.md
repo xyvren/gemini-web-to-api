@@ -13,6 +13,10 @@
   <a href="README_CN.md">中文文档</a>
 </p>
 
+<p align="center">
+  <img src="screenshot.png" width="850" alt="Gemini Web2API Client Screenshot">
+</p>
+
 ---
 
 ## 📌 Ringkasan
