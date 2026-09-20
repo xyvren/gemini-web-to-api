@@ -1,10 +1,17 @@
 # gemini-web-to-api
 
 <p align="center">
-  <img src="logo.png" width="180" alt="gemini-web-to-api logo">
+  <a href="https://github.com/xyvren/gemini-web-to-api"><img src="https://img.shields.io/badge/GitHub-xyvren%2Fgemini--web--to--api-2563eb?style=flat&logo=github" alt="GitHub Repository"></a>
+  <a href="https://github.com/xyvren/gemini-web-to-api/releases"><img src="https://img.shields.io/badge/Release-v1.1.0%20Portable-10b981?style=flat&logo=windows" alt="Release Portable"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.8+-38bdf8.svg?logo=python" alt="Python 3.8+"></a>
 </p>
 
-[English](README_EN.md) • [Bahasa Indonesia](README.md)
+<p align="center">
+  <a href="README_EN.md">English</a> • <a href="README.md">Bahasa Indonesia</a>
+</p>
+
+---
 
 将 Google Gemini 网页端转换为 OpenAI 兼容 API. 零成本, 跨平台, 单文件.
 

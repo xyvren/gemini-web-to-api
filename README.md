@@ -1,10 +1,6 @@
 # gemini-web-to-api
 
 <p align="center">
-  <img src="logo.png" width="180" alt="gemini-web-to-api logo">
-</p>
-
-<p align="center">
   <b>Konversi antarmuka Google Gemini Web menjadi API lokal yang kompatibel dengan format OpenAI secara gratis, efisien, dan mandiri.</b>
 </p>
 
@@ -18,10 +14,6 @@
 <p align="center">
   <a href="README_EN.md">English Documentation</a> •
   <a href="README_CN.md">中文文档</a>
-</p>
-
-<p align="center">
-  <img src="screenshot.png" width="850" alt="Gemini Web2API Client Screenshot">
 </p>
 
 ---
