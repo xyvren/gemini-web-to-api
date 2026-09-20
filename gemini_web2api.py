@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-gemini-web2api - Gemini Web to OpenAI API proxy.
+gemini-web-to-api - Gemini Web to OpenAI API proxy.
 
 Converts Google Gemini's web interface into an OpenAI-compatible API server.
 Zero authentication required. Works on any platform (Windows/macOS/Linux).
@@ -1109,15 +1109,16 @@ def main():
     parser.add_argument("--cookie-file", type=str, default=None, help="Path to cookie file")
     parser.add_argument("--proxy", type=str, default=None, help="HTTP proxy, e.g. http://127.0.0.1:7890")
     parser.add_argument("--open-browser", "--ui", action="store_true", default=False, help="Buka Web UI di browser saat start")
-    parser.add_argument("--version", action="version", version=f"gemini-web2api {__version__}")
+    parser.add_argument("--version", action="version", version=f"gemini-web-to-api {__version__}")
     args = parser.parse_args()
 
     exe_dir = os.path.dirname(sys.executable) if getattr(sys, "frozen", False) else os.path.dirname(os.path.abspath(__file__))
-    config_path = args.config or os.environ.get("GEMINI_WEB2API_CONFIG")
+    config_path = args.config or os.environ.get("GEMINI_WEB2API_CONFIG") or os.environ.get("GEMINI_WEB_TO_API_CONFIG")
     if not config_path:
         for p in [
             os.path.join(exe_dir, "config.json"),
             "./config.json",
+            os.path.expanduser("~/.config/gemini-web-to-api/config.json"),
             os.path.expanduser("~/.config/gemini-web2api/config.json")
         ]:
             if os.path.exists(p):
@@ -1154,7 +1155,7 @@ def main():
 
     port = CONFIG["port"]
     server = ThreadedServer((CONFIG["host"], port), GeminiHandler)
-    print(f"gemini-web2api v{__version__}")
+    print(f"gemini-web-to-api v{__version__}")
     print(f"  Listening: http://{CONFIG['host']}:{port}")
     print(f"  Base URL:  http://127.0.0.1:{port}/v1")
     print(f"  Web UI:    http://127.0.0.1:{port}/")

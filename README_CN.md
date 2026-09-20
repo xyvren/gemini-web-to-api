@@ -1,10 +1,10 @@
-# gemini-web2api
+# gemini-web-to-api
 
 <p align="center">
-  <img src="logo.png" width="200" alt="gemini-web2api logo">
+  <img src="logo.png" width="180" alt="gemini-web-to-api logo">
 </p>
 
-[English](README.md)
+[English](README_EN.md) • [Bahasa Indonesia](README.md)
 
 将 Google Gemini 网页端转换为 OpenAI 兼容 API. 零成本, 跨平台, 单文件.
 
@@ -174,25 +174,24 @@ Pro 路由需要 **Gemini Advanced** (付费订阅). 免费 Google 账号的 coo
 
 `api_keys` 为空数组 `[]` 时不校验密钥；填入一个或多个密钥后, `/v1/*` 接口需要 `Authorization: Bearer <key>` 或 `x-api-key: <key>`.
 
-## Docker 部署
+## Docker
 
 ```bash
 cp config.example.json config.json
-docker build -t gemini-web2api .
-docker run -d --name gemini-web2api -p 8081:8081 -v ./config.json:/app/config.json gemini-web2api
+docker build -t gemini-web-to-api .
+docker run -d --name gemini-web-to-api -p 8081:8081 -v ./config.json:/app/config.json gemini-web-to-api
 ```
 
-或使用 Docker Compose:
+也可以使用 Docker Compose:
 
 ```bash
-cp config.example.json config.json
-docker compose up -d
+docker compose -f docker-compose.local.yml up -d
 ```
 
-如需挂载 Cookie 文件:
+挂载 Cookie 文件:
 
 ```bash
-docker run -d --name gemini-web2api -p 8081:8081 -v ./config.json:/app/config.json -v ./cookie.txt:/app/cookie.txt gemini-web2api
+docker run -d --name gemini-web-to-api -p 8081:8081 -v ./config.json:/app/config.json -v ./cookie.txt:/app/cookie.txt gemini-web-to-api
 ```
 
 此时 `config.json` 中设置 `"cookie_file": "/app/cookie.txt"`.

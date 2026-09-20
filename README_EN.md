@@ -1,23 +1,42 @@
-# gemini-web2api
+# gemini-web-to-api
 
 <p align="center">
-  <img src="logo.png" width="200" alt="gemini-web2api logo">
+  <img src="logo.png" width="180" alt="gemini-web-to-api logo">
 </p>
 
 <p align="center">
-  <img src="screenshot.png" width="850" alt="Gemini Web2API Client Screenshot">
+  <b>Convert Google Gemini Web into a local OpenAI-compatible API for free, fast, and standalone.</b>
 </p>
 
-[中文文档](README_CN.md)
+<p align="center">
+  <a href="https://github.com/xyvren/gemini-web-to-api"><img src="https://img.shields.io/badge/GitHub-xyvren%2Fgemini--web--to--api-2563eb?style=flat&logo=github" alt="GitHub Repository"></a>
+  <a href="https://github.com/xyvren/gemini-web-to-api/releases"><img src="https://img.shields.io/badge/Release-v1.1.0%20Portable-10b981?style=flat&logo=windows" alt="Release Portable"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.8+-38bdf8.svg?logo=python" alt="Python 3.8+"></a>
+</p>
 
-Convert Google Gemini's web interface into an OpenAI-compatible API. Zero cost, cross-platform, single file.
+<p align="center">
+  <a href="README.md">Bahasa Indonesia</a> •
+  <a href="README_CN.md">中文文档</a>
+</p>
+
+<p align="center">
+  <img src="screenshot.png" width="850" alt="Gemini Web to API Client Screenshot">
+</p>
+
+---
+
+Convert Google Gemini's web interface into an OpenAI-compatible API. Zero cost, cross-platform, single file or portable Windows binary.
 
 ## Features
 
 - **Optional API Keys**: no auth when `api_keys` is empty, OpenAI-style Bearer auth when configured
 - **OpenAI Compatible**: Drop-in replacement for `/v1/chat/completions` and `/v1/models`
+- **Latest Gemini Models**: Supports Gemini 3.8 series (`gemini-3.8`, `gemini-3.8-flash`, `gemini-3.8-thinking`), 3.7, and 3.6
+- **Built-in Web Test Client**: Lightweight web UI (`test-chat.html`) to test models, chat streaming, and prompt suggestions
+- **Standalone Portable EXE**: Ready-to-use Windows `.exe` without needing Python installed
+- **Graceful Model Fallback**: Automatically falls back to active default model if an unknown model ID is requested
 - **Tool Calling**: Full function calling support (OpenAI format)
-- **Multiple Models**: Flash (3.6), Extended Thinking (20k+ char output), Pro, Auto, Lite
 - **Thinking Depth**: Adjustable via `@think=N` suffix (0=deepest, 4=shallowest)
 - **Web Search**: Built-in internet access (Gemini's native search)
 - **Cross-Platform**: Pure Python, single optional dependency (`httpx` for streaming)
@@ -27,12 +46,22 @@ Convert Google Gemini's web interface into an OpenAI-compatible API. Zero cost, 
 
 ## Quick Start
 
+### Option 1: Windows Portable Standalone (.exe)
+No Python installation required:
+1. Download `gemini-web-to-api-v1.1.0-windows-x64-portable.zip` from [Releases](https://github.com/xyvren/gemini-web-to-api/releases).
+2. Extract and run `start-portable.bat` or `gemini-web-to-api-portable.exe`.
+3. The server starts and automatically opens the test Web UI at `http://127.0.0.1:8081/`.
+
+### Option 2: Run with Python / CLI
+
 ```bash
+git clone https://github.com/xyvren/gemini-web-to-api.git
+cd gemini-web-to-api
 pip install httpx
 python gemini_web2api.py
 ```
 
-Server starts at `http://localhost:8081/v1`.
+Server starts at `http://127.0.0.1:8081/v1` and Web UI at `http://127.0.0.1:8081/`.
 
 ## Client Configuration
 
@@ -91,23 +120,26 @@ Supports Google native API endpoints:
 ## Available Models
 
 | Model | Description | Output |
-|-------|-------------|--------|
-| `gemini-3.6-flash` | All-around model (latest) | ~12k chars |
-| `gemini-3.5-flash` | Alias for gemini-3.6-flash | ~12k chars |
-| `gemini-3.5-flash-thinking` | Extended thinking, longest output | **~20k chars** |
-| `gemini-3.5-flash-thinking-lite` | Adaptive thinking depth | ~15k chars |
-| `gemini-3.1-pro` | Advanced math & code (needs cookie) | ~12k chars |
-| `gemini-auto` | Auto model selection | varies |
-| `gemini-flash-lite` | Fastest answers, lightweight | ~10k chars |
+|---|---|---|
+| **`gemini-3.8`** | Gemini 3.8 general model (*Fast mode*) | ~12k chars |
+| **`gemini-3.8-flash`** | High-speed Gemini 3.8 Flash | ~12k chars |
+| **`gemini-3.8-thinking`** | Deep reasoning (*Extended Thinking*) | **~20k chars** |
+| **`gemini-3.7-flash`** | Generation 3.7 Flash model | ~12k chars |
+| **`gemini-3.6-flash`** | Stable default model (*recommended fallback*) | ~12k chars |
+| **`gemini-3.5-flash-thinking`** | Extended thinking generation 3.5 | **~20k chars** |
+| **`gemini-3.5-flash-thinking-lite`** | Adaptive thinking depth | ~15k chars |
+| **`gemini-flash-lite`** | Fastest answers, lightweight | ~10k chars |
+| **`gemini-auto`** | Auto model selection | varies |
+| **`gemini-3.1-pro`** | Advanced math & code (*needs Gemini Advanced cookie*) | ~12k chars |
 
 ### Thinking Depth
 
 Append `@think=N` to any model name:
 
 ```
-gemini-3.5-flash-thinking@think=0   # deepest (default)
-gemini-3.5-flash-thinking@think=2   # medium
-gemini-3.5-flash-thinking@think=4   # shallowest
+gemini-3.8-thinking@think=0   # deepest (default)
+gemini-3.8-thinking@think=2   # medium
+gemini-3.8-thinking@think=4   # shallowest
 ```
 
 ## Optional: Cookie for Pro
@@ -192,21 +224,20 @@ When `api_keys` is `[]`, authentication is disabled. When one or more keys are s
 
 ```bash
 cp config.example.json config.json
-docker build -t gemini-web2api .
-docker run -d --name gemini-web2api -p 8081:8081 -v ./config.json:/app/config.json gemini-web2api
+docker build -t gemini-web-to-api .
+docker run -d --name gemini-web-to-api -p 8081:8081 -v ./config.json:/app/config.json gemini-web-to-api
 ```
 
 Or use Docker Compose:
 
 ```bash
-cp config.example.json config.json
-docker compose up -d
+docker compose -f docker-compose.local.yml up -d
 ```
 
 To mount a cookie file:
 
 ```bash
-docker run -d --name gemini-web2api -p 8081:8081 -v ./config.json:/app/config.json -v ./cookie.txt:/app/cookie.txt gemini-web2api
+docker run -d --name gemini-web-to-api -p 8081:8081 -v ./config.json:/app/config.json -v ./cookie.txt:/app/cookie.txt gemini-web-to-api
 ```
 
 Set `"cookie_file": "/app/cookie.txt"` in `config.json`.

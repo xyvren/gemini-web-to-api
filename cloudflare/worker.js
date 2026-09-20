@@ -144,7 +144,7 @@
  * 使用 CONFIG.X = env.X || null 确保始终显式赋值。
  * 
  * 基于原项目 gemini-web2api v1.1.0 移植
- * 原作者项目: https://github.com/your-repo/gemini-web2api
+ * 原作者项目: https://github.com/xyvren/gemini-web-to-api
  */
 
 // ============================================================================

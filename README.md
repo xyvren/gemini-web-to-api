@@ -1,11 +1,18 @@
-# Gemini Web2API
+# gemini-web-to-api
 
 <p align="center">
-  <img src="logo.png" width="180" alt="gemini-web2api logo">
+  <img src="logo.png" width="180" alt="gemini-web-to-api logo">
 </p>
 
 <p align="center">
-  <b>Konversi antarmuka Google Gemini Web menjadi API lokal yang kompatibel dengan format OpenAI secara gratis dan efisien.</b>
+  <b>Konversi antarmuka Google Gemini Web menjadi API lokal yang kompatibel dengan format OpenAI secara gratis, efisien, dan mandiri.</b>
+</p>
+
+<p align="center">
+  <a href="https://github.com/xyvren/gemini-web-to-api"><img src="https://img.shields.io/badge/GitHub-xyvren%2Fgemini--web--to--api-2563eb?style=flat&logo=github" alt="GitHub Repository"></a>
+  <a href="https://github.com/xyvren/gemini-web-to-api/releases"><img src="https://img.shields.io/badge/Release-v1.1.0%20Portable-10b981?style=flat&logo=windows" alt="Release Portable"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.8+-38bdf8.svg?logo=python" alt="Python 3.8+"></a>
 </p>
 
 <p align="center">
@@ -21,9 +28,9 @@
 
 ## 📌 Ringkasan
 
-**Gemini Web2API** adalah jembatan (*reverse-proxy*) ringan yang mengubah antarmuka web publik Google Gemini menjadi endpoint API standar OpenAI (`/v1/chat/completions` dan `/v1/models`).
+**gemini-web-to-api** adalah jembatan (*reverse-proxy*) ringan yang mengubah antarmuka web publik Google Gemini menjadi endpoint API standar OpenAI (`/v1/chat/completions` dan `/v1/models`).
 
-Dengan project ini, Anda dapat menghubungkan kapabilitas model Gemini ke berbagai aplikasi AI klien seperti **Cherry Studio**, **ChatBox**, **NextChat**, **OpenWebUI**, **Cursor**, **Cline**, ataupun script otomasi berbasis OpenAI SDK tanpa biaya langganan API berbayar.
+Dengan proyek ini, Anda dapat menghubungkan kapabilitas model Gemini ke berbagai aplikasi AI klien seperti **Cherry Studio**, **ChatBox**, **NextChat**, **OpenWebUI**, **Cursor**, **Cline**, ataupun skrip otomasi berbasis OpenAI SDK tanpa biaya langganan API berbayar.
 
 ---
 
@@ -73,12 +80,13 @@ Dengan project ini, Anda dapat menghubungkan kapabilitas model Gemini ke berbaga
 
 #### Opsi 1: Versi Portable Standalone (.exe)
 Tersedia file executable mandiri tanpa perlu install Python:
-- Cukup double-click **`gemini-web2api-portable.exe`**.
-- Server langsung aktif dan Web UI pengujian otomatis siap diakses.
+- Unduh paket zip dari [Releases](https://github.com/xyvren/gemini-web-to-api/releases) (`gemini-web-to-api-v1.1.0-windows-x64-portable.zip`).
+- Ekstrak dan jalankan **`start-portable.bat`** atau double-click **`gemini-web-to-api-portable.exe`**.
+- Server langsung aktif dan Web UI pengujian otomatis siap diakses di browser (`http://127.0.0.1:8081/`).
 - Untuk membangun ulang file executable ini kapan saja, cukup jalankan **`build-portable.bat`**.
 
-#### Opsi 2: Script Batch (.bat)
-- Double-click **`start-gemini-web2api.bat`** untuk menyalakan server.
+#### Opsi 2: Skrip Batch (.bat)
+- Double-click **`start-gemini-web2api.bat`** untuk menyalakan server dengan Python lokal.
 - Double-click **`open-test-web.bat`** untuk membuka antarmuka chat di browser.
 
 ---
@@ -87,8 +95,8 @@ Tersedia file executable mandiri tanpa perlu install Python:
 
 1. **Clone repository:**
    ```bash
-   git clone https://github.com/xyvren/gemini-web2api.git
-   cd gemini-web2api
+   git clone https://github.com/xyvren/gemini-web-to-api.git
+   cd gemini-web-to-api
    ```
 
 2. **Buat & aktifkan virtual environment:**
@@ -119,8 +127,26 @@ Tersedia file executable mandiri tanpa perlu install Python:
    python gemini_web2api.py --config config.json
    ```
    Server akan aktif di:
-   - Status: `http://127.0.0.1:8081/`
+   - Status & Web UI: `http://127.0.0.1:8081/`
    - Base URL API: `http://127.0.0.1:8081/v1`
+
+---
+
+## 🐳 Docker
+
+Jalankan server menggunakan Docker container:
+
+```bash
+cp config.example.json config.json
+docker build -t gemini-web-to-api .
+docker run -d --name gemini-web-to-api -p 8081:8081 -v ./config.json:/app/config.json gemini-web-to-api
+```
+
+Atau gunakan Docker Compose:
+
+```bash
+docker compose -f docker-compose.local.yml up -d
+```
 
 ---
 
@@ -223,19 +249,21 @@ Masukkan parameter koneksi berikut pada pengaturan penyedia *OpenAI Custom*:
 ## 📁 Struktur Folder
 
 ```text
-gemini-web2api/
+gemini-web-to-api/
 ├── gemini_web2api/              # Modul internal & handler API
 │   ├── __main__.py
 │   ├── config.py
 │   ├── gemini.py
-│   ├── models.py                # Definisi & mapping model
+│   ├── models.py                # Definisi & pemetaan model
 │   └── server.py
-├── config.example.json          # Template file konfigurasi
-├── gemini_web2api.py            # Script server utama
-├── requirements.txt             # Daftar dependensi Python
+├── config.example.json          # Template konfigurasi
+├── gemini_web2api.py            # Skrip server utama
+├── requirements.txt             # Dependensi Python
 ├── test-chat.html               # Antarmuka web pengujian lokal
-├── start-gemini-web2api.bat     # Windows one-click server launcher
-├── open-test-web.bat            # Windows one-click web client launcher
+├── start-portable.bat           # Windows launcher portable sekali klik
+├── start-gemini-web2api.bat     # Windows launcher via Python
+├── open-test-web.bat            # Shortcut membuka Web UI di browser
+├── build-portable.bat           # Skrip build PyInstaller standalone .exe
 ├── README.md                    # Dokumentasi utama (Bahasa Indonesia)
 ├── README_EN.md                 # English documentation
 └── README_CN.md                 # 中文文档

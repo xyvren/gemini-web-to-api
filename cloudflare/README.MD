@@ -296,4 +296,4 @@ SAPISID = "sapisid_1| sapisid_2| sapisid_3"
 
 ## 📄 许可证
 
-本项目基于原项目 [gemini-web2api](https://github.com/your-repo/gemini-web2api) 移植，遵循原项目的开源协议。
+本项目基于原项目 [gemini-web-to-api](https://github.com/xyvren/gemini-web-to-api) 移植，遵循原项目的开源协议。

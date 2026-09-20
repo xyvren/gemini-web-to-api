@@ -1,9 +1,9 @@
 @echo off
-title Gemini Web2API Server
+title Gemini Web to API Server
 cd /d "%~dp0"
 
 echo ========================================================
-echo Memulai Gemini Web2API Server...
+echo Memulai Gemini Web to API Server...
 echo ========================================================
 
 if exist ".venv\Scripts\activate.bat" (
