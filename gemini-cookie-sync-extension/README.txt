@@ -1,19 +1,20 @@
 Gemini Cookie Sync v1.0
 
-Purpose:
-- Read cookies for the current Google/Gemini session.
-- Extract the XSRF token named SNlM0e from the Gemini page.
-- Extract gemini_bl from cfb2h or from page requests when available.
-- Export `gemini-auth.json` locally only.
+Tujuan:
+- Membaca cookie sesi aktif Google Gemini di browser.
+- Mengekstrak token XSRF (SNlM0e) dari halaman Gemini.
+- Mengekstrak build number gemini_bl (cfb2h) dari halaman web.
+- Mengekspor data tersebut ke file lokal `gemini-auth.json`.
 
-Installation:
-1. Open `chrome://extensions`
-2. Enable Developer mode
-3. Click Load unpacked
-4. Select this folder
-5. Open `https://gemini.google.com/app`, sign in, and refresh the page
-6. Click Inspect session
-7. Click Export `gemini-auth.json`
+Instalasi:
+1. Buka chrome://extensions di browser Chrome/Chromium.
+2. Aktifkan Mode Pengembang (Developer mode).
+3. Klik tombol 'Load unpacked' (Muat yang belum dibongkar).
+4. Pilih folder ini (gemini-cookie-sync-extension).
+5. Buka https://gemini.google.com/app, login ke akun Google, dan refresh halaman.
+6. Buka ekstensi ini lalu klik 'Inspect session'.
+7. Klik 'Export gemini-auth.json'.
 
-Security:
-The generated file represents the real Google session and must be treated as secret. Do not send it, print it, or commit it to Git.
+Keamanan:
+File `gemini-auth.json` yang dihasilkan berisi sesi autentikasi Google asli Anda.
+Jaga kerahasiaan file tersebut. Jangan pernah membagikan, mencetak, atau mengunggahnya ke Git.
